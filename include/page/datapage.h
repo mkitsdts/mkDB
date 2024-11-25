@@ -16,8 +16,8 @@ public:
     static DataPage* create(unsigned char order);
 
     // 添加列
-    void add_column(char type, std::string &column_name, char key = NOT_KEY, char is_null = ALLOW_NULL);
-    void add_column(char type, std::string &&column_name, char key = NOT_KEY, char is_null = ALLOW_NULL);
+    void add_column(char type, std::string &column_name, char is_key = NOT_KEY, char is_null = ALLOW_NULL);
+    void add_column(char type, std::string &&column_name, char is_key = NOT_KEY, char is_null = ALLOW_NULL);
 
     // 删除列
     bool drop_column(std::string &column_name);
@@ -50,7 +50,7 @@ protected:
     // 缓冲
     char buffer[4096];
     // 数据页是否脏页
-    unsigned char dirty;
+    bool dirty;
     // 主键列序号
     unsigned char key_column;
     // 当前列

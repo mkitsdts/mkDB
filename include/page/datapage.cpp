@@ -2,7 +2,7 @@
 #include <sstream>
 #include <fstream>
 
-DataPage::DataPage(): dirty(0), key_column(0), current_column(0)
+DataPage::DataPage() : dirty(0), key_column(0), current_column(0), column_count(0), buffer{ 0 }, directory{}, header{}, page_header{}, tailer{}
 {
 }
 
@@ -11,28 +11,29 @@ DataPage::~DataPage()
 }
 
 DataPage* DataPage::create(unsigned char order)
+    
 {
     auto page = new DataPage;
     page->header.FILE_PAGE_ORDER = order;
     return page;
 }
 
-void DataPage::add_column(char type, std::string &column_name, char key, char is_null)
+void DataPage::add_column(char type, std::string &column_name, char is_key, char is_null)
 {
     column_information column{};
     column.COLUMN_TYPE = type;
     column.COLUMN_NAME = const_cast<char*>(column_name.data());
-    column.COLUMN_KEY = key;
+    column.COLUMN_KEY = is_key;
     column.COLUMN_NULL = is_null;
     columns.push_back(column);
 }
 
-void DataPage::add_column(char type, std::string &&column_name, char key, char is_null)
+void DataPage::add_column(char type, std::string &&column_name, char is_key, char is_null)
 {
-    column_information column;
+    column_information column{};
     column.COLUMN_TYPE = type;
     column.COLUMN_NAME = const_cast<char*>(column_name.data());
-    column.COLUMN_KEY = key;
+    column.COLUMN_KEY = is_key;
     column.COLUMN_NULL = is_null;
     columns.push_back(column);
 }
@@ -102,7 +103,7 @@ bool DataPage::select_column(unsigned char column_order)
 bool DataPage::read(int page_order)
 {
     std::ifstream file;
-    file.open(PATH, std::ios::out | std::ios::binary);
+    file.open(PAGE_PATH, std::ios::out | std::ios::binary);
     if (!file.is_open())
         return -1;
     
@@ -116,7 +117,7 @@ bool DataPage::read(int page_order)
 bool DataPage::write()
 {
     std::ofstream file;
-    file.open(PATH, std::ios::out | std::ios::binary);
+    file.open(PAGE_PATH, std::ios::out | std::ios::binary);
     if (!file.is_open())
     {
 		printf("open file failed\n");

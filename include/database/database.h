@@ -11,21 +11,24 @@ public:
     Database();
     ~Database();
 
+	static Database* instance();
+
+
     // 创建表
-    bool create_table(const std::string& table_name, std::vector<std::vector<std::string>>& columns);
-    bool create_table(const std::string&& table_name, std::vector<std::vector<std::string>>& columns);
+    bool create_table(std::string& table_name, std::vector<std::vector<std::string>>& columns);
+    bool create_table(std::string&& table_name, std::vector<std::vector<std::string>>& columns);
 
     // 删除表
-    bool drop_table(const std::string& table_name);
-    bool drop_table(const std::string&& table_name);
+    bool drop_table(std::string& table_name);
+    bool drop_table(std::string&& table_name);
 
     // 插入数据
     bool insert(std::vector<std::string>& values);
     bool insert(std::vector<std::string>&& values);
 
     // 选择表
-    bool use(const std::string& table_name);
-    bool use(const std::string&& table_name);
+    bool use(std::string& table_name);
+    bool use(std::string&& table_name);
 
 	// 删除数据
 	bool drop(std::string& key);
@@ -45,9 +48,9 @@ public:
 	bool show(std::string&& key);
 
 private:
-    std::unordered_map<std::string, Table> tables;
+    std::unordered_map<std::string, Table*> tables;
     // 当前表
-    unsigned char current_table;
+    std::string current_table;
 };
 
 

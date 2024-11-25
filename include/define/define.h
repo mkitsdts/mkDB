@@ -7,6 +7,7 @@
 
 #define PAGE_SIZE 4096
 
+#define ROOT 0
 
 #define NOT_KEY 0
 #define KEY 1
@@ -19,7 +20,8 @@
 #define DATE 3
 
 // 定义数据库文件路径
-constexpr const char* PATH = "data.db";
+constexpr const char* PAGE_PAGE_PATH = "data.db";
+constexpr const char* INDEX_PATH = "index.db";
 
 inline int toInt(char c1,char c2,char c3,char c4)
 {
@@ -105,7 +107,7 @@ struct column_information
 {
 	unsigned COLUMN_TYPE : 4;					// 列类型
 	unsigned COLUMN_NULL : 4;					// 列是否为空
-	unsigned int COLUMN_KEY;					// 列键
+	unsigned char COLUMN_KEY;					// 列键
 	unsigned char COLUMN_NAME_LENGTH;			// 列名长度
 	char *COLUMN_NAME;							// 列名
 	void assign(int c)

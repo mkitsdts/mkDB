@@ -1,0 +1,49 @@
+{
+    "users": [
+        {
+            "name": "Alice",
+            "age": 25,
+            "email": "alice@example.com",
+            "hobbies": [
+                "reading",
+                "painting"
+            ],
+            "address": {
+                "street": "123 Main St",
+                "city": "Anytown",
+                "state": "CA",
+                "zip": "12345"
+            }
+        },
+        {
+            "name": "Bob",
+            "age": 30,
+            "email": "bob@example.com",
+            "hobbies": [
+                "swimming",
+                "running"
+            ],
+            "address": {
+                "street": "456 Elm St",
+                "city": "Othertown",
+                "state": "NY",
+                "zip": "67890"
+            }
+        },
+        {
+            "name": "Charlie",
+            "age": 35,
+            "email": "charlie@example.com",
+            "hobbies": [
+                "music",
+                "dancing"
+            ],
+            "address": {
+                "street": "789 Oak St",
+                "city": "Smalltown",
+                "state": "TX",
+                "zip": "54321"
+            }
+        }
+    ]
+}

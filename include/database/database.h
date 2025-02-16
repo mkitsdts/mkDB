@@ -13,7 +13,6 @@ public:
 
 	static Database* instance();
 
-
     // ´´½¨±í
     bool create_table(std::string& table_name, std::vector<std::vector<std::string>>& columns);
     bool create_table(std::string&& table_name, std::vector<std::vector<std::string>>& columns);
@@ -53,5 +52,6 @@ private:
     std::string current_table;
 };
 
+inline Database* mkDb = Database::instance();
 
 #endif // DATABASE_H

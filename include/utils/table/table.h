@@ -1,5 +1,4 @@
-#ifndef TABLE_H
-#define TABLE_H
+#pragma once
 
 #include <string>
 #include <string_view>
@@ -60,5 +59,3 @@ private:
     bool exist;
     std::vector<DataPage*> pages;
 };
-
-#endif // TABLE_H

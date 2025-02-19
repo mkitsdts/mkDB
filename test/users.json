@@ -1,49 +1,78 @@
 {
     "users": [
         {
+            "id": "user001",
             "name": "Alice",
-            "age": 25,
             "email": "alice@example.com",
-            "hobbies": [
-                "reading",
-                "painting"
-            ],
             "address": {
                 "street": "123 Main St",
-                "city": "Anytown",
-                "state": "CA",
-                "zip": "12345"
-            }
+                "city": "Springfield",
+                "state": "IL",
+                "zip": "62704"
+            },
+            "phoneNumbers": [
+                {
+                    "type": "home",
+                    "number": "555-1234"
+                },
+                {
+                    "type": "mobile",
+                    "number": "555-5678"
+                }
+            ],
+            "orders": [
+                {
+                    "orderId": "order001",
+                    "items": [
+                        {
+                            "productId": "prod001",
+                            "name": "Wireless Mouse",
+                            "quantity": 2,
+                            "price": 25.99
+                        },
+                        {
+                            "productId": "prod002",
+                            "name": "USB Cable",
+                            "quantity": 1,
+                            "price": 5.99
+                        }
+                    ],
+                    "total": 57.97,
+                    "status": "completed"
+                }
+            ]
         },
         {
+            "id": "user002",
             "name": "Bob",
-            "age": 30,
             "email": "bob@example.com",
-            "hobbies": [
-                "swimming",
-                "running"
-            ],
             "address": {
                 "street": "456 Elm St",
-                "city": "Othertown",
-                "state": "NY",
-                "zip": "67890"
-            }
-        },
-        {
-            "name": "Charlie",
-            "age": 35,
-            "email": "charlie@example.com",
-            "hobbies": [
-                "music",
-                "dancing"
+                "city": "Shelbyville",
+                "state": "IL",
+                "zip": "62705"
+            },
+            "phoneNumbers": [
+                {
+                    "type": "home",
+                    "number": "555-9876"
+                }
             ],
-            "address": {
-                "street": "789 Oak St",
-                "city": "Smalltown",
-                "state": "TX",
-                "zip": "54321"
-            }
+            "orders": [
+                {
+                    "orderId": "order002",
+                    "items": [
+                        {
+                            "productId": "prod003",
+                            "name": "External Hard Drive",
+                            "quantity": 1,
+                            "price": 79.99
+                        }
+                    ],
+                    "total": 79.99,
+                    "status": "pending"
+                }
+            ]
         }
     ]
 }

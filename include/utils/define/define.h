@@ -1,119 +1,236 @@
-#pragma once 
+#pragma once
 
-#include <string>
-#include <vector>
+#include <fstream>
 
-#define NOT_NULL 0
-#define ALLOW_NULL 1
-
-#define INT 0
-#define FLOAT 1
-#define VARCHAR 2
-#define DATE 3
-
-// ∂®“Â ˝æ›ø‚Œƒº˛¬∑æ∂
-constexpr const char* PAGE_PAGE_PATH = "data.db";
-
-// ∂®“Â“≥¥Û–°
-constexpr auto PAGE_SIZE = 4096;
-
-inline int toInt(char c1,char c2,char c3,char c4)
+namespace mkDB
 {
-    return (c1 << 24) | (c2 << 16) | (c3 << 8) | c4;
-}
-
-inline float toFloat(char c1,char c2,char c3,char c4)
+// ÈîÅ
+struct Lock
 {
-	return (c1 << 24) | (c2 << 16) | (c3 << 8) | c4;
-}
-
-inline std::string to_date(char c1,char c2,char c3,char c4)
-{
-	std::string date;
-	date += std::to_string((int)c1);
-	date += std::to_string((int)c2);
-	date += "-";
-	date += std::to_string((int)c3);
-	date += "-";
-	date += std::to_string((int)c4);
-	return date;
-}
-
-inline unsigned int hash_value(const std::string& str)
-{
-	unsigned int hash = 0;
-	for (auto c : str)
-	{
-		hash = hash * 131 + c;
-	}
-	return hash;
-}
-
-struct LSN										// Œƒº˛“≥LSN
-{
-	int FILE_PAGE_LSN_OFFSET;					// Œƒº˛“≥LSN∆´“∆
-	int FILE_PAGE_LSN_CHECKSUM;					// –£—È∫Õ
-
-	LSN() = default;
+    virtual ~Lock() = default;
 };
 
-struct file_header
+// ÊîØÊåÅÁöÑÊï∞ÊçÆÁ±ªÂûã
+enum class Type
 {
-	int FILE_PAGE_SPACE_OR_CHECKSUM;			// Œƒº˛“≥ø’º‰ªÚ–£—È∫Õ
-	unsigned char FILE_PAGE_ORDER;				// Œƒº˛“≥∆´“∆
-	unsigned char FILE_PAGE_PREV;				// …œ“ª∏ˆŒƒº˛“≥µƒ–Ú∫≈
-	unsigned char FILE_PAGE_NEXT;				// œ¬“ª∏ˆŒƒº˛“≥µƒ–Ú∫≈
-	LSN FILE_PAGE_LSN;							// Œƒº˛“≥LSN
-	file_header() = default;
+    INT,
+    FLOAT,
+    VARCHAR,
+    DATE
 };
 
-struct file_tailer
+// Âàó‰ø°ÊÅØ
+struct Field
 {
-	int FILE_PAGE_CHECKSUM;						// Œƒº˛“≥ø’º‰ªÚ–£—È∫Õ
-	file_tailer() = default;
+    virtual void serialize(std::fstream dos)
+    {
+    }
+    virtual void to_string()
+    {
+    }
+    virtual int hash()
+    {
+        return 0;
+    }
+    virtual bool operator==(Field &other) const
+    {
+        return false;
+    }
+    Type type()
+    {
+        return Type::INT;
+    }
+    virtual ~Field() = default;
 };
 
-struct page_header
+// È°µ‰ø°ÊÅØÁöÑÂü∫Á±ª
+struct PageId
 {
-	unsigned int PAGE_N_DIR_DATA;				// “≥÷–ƒø¬º ˝æ›µƒ ˝¡ø
-	unsigned int PAGE_RECORD_NUMBER;			// µ±«∞“≥÷–º«¬ºµƒ ˝¡ø
-	page_header() = default;
+    virtual int id()
+    {
+        return 0;
+    };
+    virtual int hash()
+    {
+        return 0;
+    };
+    virtual int page_number()
+    {
+        return 0;
+    };
+    virtual bool operator==(PageId &other) const
+    {
+        return false;
+    }
+    virtual ~PageId() = default;
 };
 
-struct record_header_information
+// Êï∞ÊçÆÈ°µ È°µ‰ø°ÊÅØ
+class HeapPageId : public PageId
 {
-	unsigned int COLUMN_OWNED;					// ≥…‘±±‰¡ø∏ˆ ˝
-	unsigned int RECORD_LENGTH;					// º«¬º≥§∂»
-	int NEXT_ROCORD;							// œ¬“ª∏ˆº«¬º
-	unsigned int ROWS_ORDER;					// ––±‡∫≈
+  public:
+    int id()
+    {
+        return table_id_;
+    }
+
+    int hash()
+    {
+        return table_id_ * 31 + page_number_;
+    }
+
+    int page_number()
+    {
+        return page_number_;
+    }
+
+    bool operator==(HeapPageId &other) const
+    {
+        return page_number_ == other.page_number() && table_id_ == other.id();
+    }
+
+  private:
+    int page_number_;
+    int table_id_;
 };
 
-struct page_directory
+// ÂØπÂ∫îÊüêÊù°Êï∞ÊçÆÁöÑid
+class RecordId
 {
-	unsigned int max_key;
-	unsigned int min_key;
+  public:
+    RecordId(PageId id, int number) : pid(id), tuple_number_(number)
+    {
+    }
+
+    bool operator==(RecordId &other) const
+    {
+        return pid == other.pid && tuple_number_ == other.tuple_number_;
+    }
+
+    int tuple_number()
+    {
+        return tuple_number_;
+    }
+
+    PageId page_id()
+    {
+        return pid;
+    }
+
+    int hash()
+    {
+        return pid.hash() * 31 + tuple_number_;
+    }
+
+    int id()
+    {
+        return pid.id();
+    }
+
+  private:
+    PageId pid;
+    int tuple_number_;
 };
 
-struct column_information
+// Ê†áËÆ∞‰∫ãÂä°ÁöÑid
+struct TransactionId
 {
-	unsigned COLUMN_TYPE : 4;					// ¡–¿‡–Õ
-	unsigned COLUMN_NULL : 4;					// ¡– «∑ÒŒ™ø’
-	unsigned char COLUMN_KEY;					// ¡–º¸
-	unsigned char COLUMN_NAME_LENGTH;			// ¡–√˚≥§∂»
-	char *COLUMN_NAME;							// ¡–√˚
-	void assign(int c)
-	{
-		COLUMN_TYPE = c >> 4 & 0x0f;
-		COLUMN_NULL = c & 0x0f;
-	}
-	char toChar() const
-	{
-		return (COLUMN_TYPE << 4) | COLUMN_NULL;
-	}
+
+    TransactionId()
+    {
+    }
+
+    bool operator==(TransactionId &other) const
+    {
+        return my_id == other.my_id;
+    }
+
+    int id()
+    {
+        return my_id;
+    }
+
+    int hashCode()
+    {
+        int prime = 31;
+        int result = 1;
+        result = prime * result + (my_id ^ (my_id >> 32));
+        return result;
+    }
+
+    std::string to_string()
+    {
+        return std::to_string(my_id);
+    }
+
+    int my_id;
+    static std::atomic<int> counter_;
 };
 
-struct user_records
+// Ë°®ÂØπÂ∫îÊñá‰ª∂ÁªìÊûÑ
+struct DBFile
 {
-	record_header_information header;
-	std::vector<std::string> values;
+    virtual void write(Page &page)
+    {
+    }
+
+    virtual Page read(PageId &pid)
+    {
+        return Page{};
+    }
+
+    virtual void insert_tuple(TransactionId tid, Tuple &tuple)
+    {
+    }
+
+    virtual void delete_tuple(TransactionId tid, Tuple &tuple)
+    {
+    }
+
+    virtual int id()
+    {
+        return 0;
+    }
+
+    virtual TupleDecs tuple_decs()
+    {
+        return TupleDecs{{}, {}};
+    }
+
+    virtual std::fstream file()
+    {
+        return std::fstream{};
+    }
+
+    virtual ~DBFile() = default;
 };
+
+// È°µ‰ø°ÊÅØ
+struct Page
+{
+    virtual PageId id()
+    {
+        return PageId{};
+    };
+
+    virtual TransactionId is_dirty()
+    {
+        return TransactionId{};
+    };
+
+    virtual void mark_dirty(bool dirty, TransactionId tid) {};
+
+    virtual std::vector<std::byte> get_page_data()
+    {
+        return std::vector<std::byte>{};
+    };
+
+    virtual Page get_before_image()
+    {
+        return Page{};
+    };
+
+    virtual void set_before_image() {};
+    virtual ~Page() = default;
+};
+} // namespace mkDB
